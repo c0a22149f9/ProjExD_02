@@ -5,6 +5,7 @@ import random
 WIDTH, HEIGHT = 1400, 800
 
 
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -19,7 +20,8 @@ def main():
     bomb_rect=bomb_img.get_rect()
     bomb_rect.centerx = random.randint(0, WIDTH)
     bomb_rect.centery = random.randint(0, HEIGHT)
-
+    vx = +5 
+    vy = +5
     #bomb.set_colorkey((0,0,0))
     while True:
         for event in pg.event.get():
@@ -28,10 +30,11 @@ def main():
 
         screen.blit(bg_img, [0, 0])
         screen.blit(kk_img, [900, 400])
+        bomb_rect.move_ip(vx, vy)
         screen.blit(bomb_img, bomb_rect)
         pg.display.update()
         tmr += 1
-        clock.tick(10)
+        clock.tick(50)
 
 
 if __name__ == "__main__":
