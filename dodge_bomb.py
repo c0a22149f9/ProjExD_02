@@ -9,8 +9,19 @@ delta = {
     pg.K_UP: (0, -5),
     pg.K_DOWN: (0, +5),
     pg.K_RIGHT: (+5, 0),
+    pg.K_LEFT: (-5, 0),
+}
+
+
+kk = {
+    #pg.K_UP: pg.transform.rotozoom(kk_img, 90, 1.0),
+    pg.K_DOWN: (0, +5),
+    pg.K_RIGHT: (+5, 0),
     pg.K_LEFT: (-5, 0)
 }
+
+
+bomb_imgs = []
 
 
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
@@ -34,14 +45,20 @@ def main():
     kk_rect.center= 900,400
     clock = pg.time.Clock()
     tmr = 0
-    bomb_img=pg.Surface((20,20))
+    accs = [a for a in range(0,10)]
+    for r in range(1,11):
+        bomb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bomb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bomb_imgs.append(bomb_img)
 
-    pg.draw.circle(bomb_img,(255,0,0),(10,10),10)
-    bomb_rect=bomb_img.get_rect()
-    bomb_rect.centerx = random.randint(0, WIDTH)
-    bomb_rect.centery = random.randint(0, HEIGHT)
+    bomb_img = pg.Surface((20,20))
     vx = +5 
     vy = +5
+    pg.draw.circle(bomb_img,(255,0,0),(10,10),10)
+    bomb_rect = bomb_img.get_rect()
+    bomb_rect.centerx = random.randint(0, WIDTH)
+    bomb_rect.centery = random.randint(0, HEIGHT)
+    
     #bomb.set_colorkey((0,0,0))
     while True:
         for event in pg.event.get():
@@ -50,27 +67,31 @@ def main():
             
         if kk_rect.colliderect(bomb_rect):
             print("Game Over")
+            print(str(tmr//50)+"秒生き残った")
             return
             
         key_lst = pg.key.get_pressed()
-        sum_mv =[0, 0]
+        sum_mv = [0, 0]
+        
         for k, tpl in delta.items():
             if key_lst[k]:
                 sum_mv[0] += tpl[0]
                 sum_mv[1] += tpl[1]
 
+        avx, avy = vx*accs[min(tmr//500, 9)], vy*accs[min(tmr//500, 9)]
         screen.blit(bg_img, [0, 0])
         kk_rect.move_ip(sum_mv[0], sum_mv[1])
         if check_bound(kk_rect) != (True,True):
             kk_rect.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rect)
-        bomb_rect.move_ip(vx, vy)
-        yoko, tate =check_bound(bomb_rect)
+        bomb_rect.move_ip(avx, avy)
+        yoko, tate = check_bound(bomb_rect)
         if not yoko:
             vx *= -1
         if not tate:
             vy *= -1
-        bomb_rect.move_ip(vx,vy)
+        bomb_rect.move_ip(vx, vy)
+        bomb_img = bomb_imgs[min(tmr//500, 9)]
         screen.blit(bomb_img, bomb_rect)
         pg.display.update()
         tmr += 1
